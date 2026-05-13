@@ -1,0 +1,56 @@
+@import "tailwindcss";
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary-50: #eef5ff;
+  --color-primary-100: #dceafe;
+  --color-primary-200: #c1dafe;
+  --color-primary-300: #97c3fd;
+  --color-primary-400: #68a1f9;
+  --color-primary-500: #437df4;
+  --color-primary-600: #2F6FED; /* Soft Blue */
+  --color-primary-700: #1d57d6;
+  --color-primary-800: #1b47ad;
+  --color-primary-900: #1b3d88;
+  --color-primary-950: #122853;
+  --color-success: #10b981; 
+  --color-alert: #ef4444; 
+}
+
+:root {
+  --background: #F5F7FA;
+  --foreground: #111827;
+}
+
+:root.dark {
+  --background: #0f172a;
+  --foreground: #f8fafc;
+  
+  /* Tailwind Color Inversions */
+  --color-white: #1e293b;
+  --color-gray-50: #0f172a;
+  --color-gray-100: #334155;
+  --color-gray-200: #475569;
+  --color-gray-300: #64748b;
+  --color-gray-400: #94a3b8;
+  --color-gray-500: #94a3b8;
+  --color-gray-600: #cbd5e1;
+  --color-gray-700: #e2e8f0;
+  --color-gray-800: #f1f5f9;
+  --color-gray-900: #f8fafc;
+
+  /* Transparent Pills for Dark Mode Contrast */
+  --color-primary-50: rgba(47, 111, 237, 0.15);
+  --color-primary-100: rgba(47, 111, 237, 0.25);
+  --color-emerald-50: rgba(16, 185, 129, 0.15);
+  --color-emerald-100: rgba(16, 185, 129, 0.25);
+  --color-red-50: rgba(239, 68, 68, 0.15);
+  --color-red-100: rgba(239, 68, 68, 0.25);
+  --color-blue-50: rgba(59, 130, 246, 0.15);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
