@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import fs from "fs/promises";
-import path from "path";
 import { initiateC2BPayment } from "../../../lib/mpesaHelper";
 import { sendOrderReceiptEmail } from "../../../lib/mailer";
+import { supabase } from "../../../lib/supabase";
 
 export async function POST(request) {
   try {
@@ -38,36 +37,28 @@ export async function POST(request) {
       }, { status: 400 });
     }
 
-    // Save order payload locally
-    const dataDir = path.join(process.cwd(), "src", "app", "data");
-    const filePath = path.join(dataDir, "orders.json");
-
-    await fs.mkdir(dataDir, { recursive: true });
-
-    let orders = [];
-    try {
-      const fileData = await fs.readFile(filePath, "utf-8");
-      orders = JSON.parse(fileData);
-    } catch (e) {
-      // Ignore if file doesn't exist
-    }
-
+    // Save order to Supabase
     const newOrder = {
-      orderId,
-      pharmacyName,
-      meds,
-      totalAmount: amount,
-      clientEmail: email.trim().toLowerCase(),
-      clientPhone: phoneClean,
-      mpesaTransactionId: mpesaResult.transactionId,
+      order_id: orderId,
+      pharmacy_name: pharmacyName,
+      meds: meds,
+      total_amount: amount,
+      client_email: email.trim().toLowerCase(),
+      client_phone: phoneClean,
+      mpesa_transaction_id: mpesaResult.transactionId,
       code,
       status: "PAID",
-      createdAt: new Date().toISOString(),
-      simulated: !!mpesaResult.simulated
+      simulated: !!mpesaResult.simulated,
     };
 
-    orders.push(newOrder);
-    await fs.writeFile(filePath, JSON.stringify(orders, null, 2), "utf-8");
+    if (supabase) {
+      const { error: dbError } = await supabase.from("orders").insert(newOrder);
+      if (dbError) {
+        console.error("[Supabase] Failed to insert order:", dbError.message);
+      }
+    } else {
+      console.warn("[Order] Supabase not configured — order not persisted.");
+    }
 
     // Send confirmation email
     const emailResult = await sendOrderReceiptEmail(email.trim().toLowerCase(), {

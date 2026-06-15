@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import fs from "fs/promises";
-import path from "path";
 import { getOTP, deleteOTP, verifyOTP } from "../../../lib/otpStore";
 import { sendSupportNotification } from "../../../lib/mailer";
+import { supabase } from "../../../lib/supabase";
 
 export async function POST(request) {
   try {
@@ -31,32 +30,21 @@ export async function POST(request) {
       return NextResponse.json({ error: "Sessão expirada. Por favor submeta o formulário novamente." }, { status: 400 });
     }
 
-    // Save to local JSON database
-    const dataDir = path.join(process.cwd(), "src", "app", "data");
-    const filePath = path.join(dataDir, "contacts.json");
-    
-    // Ensure data directory exists
-    await fs.mkdir(dataDir, { recursive: true });
-
-    let contacts = [];
-    try {
-      const fileData = await fs.readFile(filePath, "utf-8");
-      contacts = JSON.parse(fileData);
-    } catch (e) {
-      // File doesn't exist yet, we keep the empty array
+    // Save to Supabase
+    if (supabase) {
+      const { error: dbError } = await supabase.from("contacts").insert({
+        name: record.name,
+        email: record.email,
+        subject: record.subject,
+        message: record.message,
+        verified_at: new Date().toISOString(),
+      });
+      if (dbError) {
+        console.error("[Supabase] Failed to insert contact:", dbError.message);
+      }
+    } else {
+      console.warn("[Contact] Supabase not configured — contact not persisted.");
     }
-
-    const newContact = {
-      id: Math.random().toString(36).substring(2, 11),
-      name: record.name,
-      email: record.email,
-      subject: record.subject,
-      message: record.message,
-      verifiedAt: new Date().toISOString(),
-    };
-
-    contacts.push(newContact);
-    await fs.writeFile(filePath, JSON.stringify(contacts, null, 2), "utf-8");
 
     // Attempt to notify support via SMTP email
     const emailResult = await sendSupportNotification({
