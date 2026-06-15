@@ -23,7 +23,12 @@ import {
   Monitor,
   Bell,
   AlertTriangle,
-  HelpCircle
+  HelpCircle,
+  Mail,
+  User,
+  Tag,
+  Send,
+  ArrowLeft
 } from "lucide-react";
 
 // Expanded Mock Institutions with rough geographical coordinates
@@ -105,7 +110,48 @@ const i18n = {
     sys: "Sistema",
     notifs: "Notificações PUSH",
     repErr: "Reportar Problema",
-    help: "Ajuda & Detalhes"
+    help: "Ajuda & Detalhes",
+    contactTitle: "Fale Connosco",
+    contactSub: "Envie as suas dúvidas, sugestões ou reporte problemas técnicos de forma segura.",
+    contactName: "Seu Nome",
+    contactEmail: "Endereço de E-mail",
+    contactSubject: "Assunto",
+    contactMessage: "Sua Mensagem",
+    contactSubmitting: "A processar...",
+    contactSendCode: "Enviar Código de Verificação",
+    contactVerifyTitle: "Verifique o seu E-mail",
+    contactVerifySub: "Enviámos um código OTP de 6 dígitos para o e-mail {email}. Por favor, introduza-o abaixo.",
+    contactVerifying: "A verificar código...",
+    contactVerifyBtn: "Confirmar & Enviar",
+    contactResendBtn: "Reenviar Código",
+    contactResendIn: "Reenviar em {time}s",
+    contactSuccessTitle: "Mensagem Enviada!",
+    contactSuccessSub: "A sua mensagem foi verificada com sucesso. A nossa equipa irá analisar e responder o mais rápido possível.",
+    contactClose: "Fechar",
+    contactErrFill: "Por favor preencha todos os campos corretamente.",
+    contactErrOtp: "Código inválido. Tente novamente.",
+    contactSubjectBug: "Reportar Problema Técnico",
+    contactSubjectFeedback: "Sugestão ou Feedback",
+    contactSubjectQuestion: "Dúvida Geral",
+    cartTitle: "Carrinho de Medicamentos",
+    cartSub: "Confirme a lista de medicamentos extraídos da sua receita antes de efectuar o pagamento.",
+    cartMedsHeader: "Medicamentos",
+    cartQtyHeader: "Qtd",
+    cartPriceHeader: "Subtotal",
+    checkoutEmail: "Endereço de E-mail para Recibo",
+    checkoutPhone: "Telemóvel M-Pesa (Vodacom)",
+    checkoutBtn: "Pagar com M-Pesa",
+    checkoutGoBack: "Voltar ao Chat",
+    checkoutMpesaTitle: "Transacção M-Pesa",
+    checkoutMpesaSub: "A enviar pedido de pagamento M-Pesa para o número {phone}. Por favor, verifique o seu telemóvel e introduza o PIN para autorizar.",
+    checkoutMpesaWaiting: "A aguardar confirmação do PIN...",
+    checkoutMpesaSec: "Segundos restantes",
+    checkoutErrPhone: "Número M-Pesa inválido. Digite um número Vodacom com 9 dígitos (ex: 84XXXXXXX).",
+    checkoutErrPay: "O pagamento falhou ou foi cancelado.",
+    checkoutMpesaSuccess: "Pagamento verificado com sucesso!",
+    orderReceiptSent: "Enviámos o recibo com os detalhes e código de levantamento para o seu e-mail: {email}.",
+    orderPaidBadge: "Pago via M-Pesa",
+    orderTxId: "Transacção M-Pesa"
   },
   EN: {
     search: "Search hospitals, clinics...",
@@ -150,7 +196,48 @@ const i18n = {
     sys: "System",
     notifs: "PUSH Notifications",
     repErr: "Report Error",
-    help: "Help & Details"
+    help: "Help & Details",
+    contactTitle: "Contact Us",
+    contactSub: "Send your questions, suggestions, or report technical issues securely.",
+    contactName: "Your Name",
+    contactEmail: "Email Address",
+    contactSubject: "Subject",
+    contactMessage: "Your Message",
+    contactSubmitting: "Processing...",
+    contactSendCode: "Send Verification Code",
+    contactVerifyTitle: "Verify Your Email",
+    contactVerifySub: "We've sent a 6-digit OTP to {email}. Please enter it below.",
+    contactVerifying: "Verifying code...",
+    contactVerifyBtn: "Confirm & Submit",
+    contactResendBtn: "Resend Code",
+    contactResendIn: "Resend in {time}s",
+    contactSuccessTitle: "Message Sent!",
+    contactSuccessSub: "Your message has been verified successfully. Our team will review it and reply as soon as possible.",
+    contactClose: "Close",
+    contactErrFill: "Please fill in all fields correctly.",
+    contactErrOtp: "Invalid code. Please try again.",
+    contactSubjectBug: "Report Technical Issue",
+    contactSubjectFeedback: "Suggestion or Feedback",
+    contactSubjectQuestion: "General Inquiry",
+    cartTitle: "Medicines Cart",
+    cartSub: "Confirm the list of medicines extracted from your prescription before completing the payment.",
+    cartMedsHeader: "Medicines",
+    cartQtyHeader: "Qty",
+    cartPriceHeader: "Subtotal",
+    checkoutEmail: "Email Address for Receipt",
+    checkoutPhone: "M-Pesa Mobile Number (Vodacom)",
+    checkoutBtn: "Pay with M-Pesa",
+    checkoutGoBack: "Back to Chat",
+    checkoutMpesaTitle: "M-Pesa Transaction",
+    checkoutMpesaSub: "Sending M-Pesa payment request to {phone}. Please check your phone and enter your PIN to authorize.",
+    checkoutMpesaWaiting: "Waiting for PIN confirmation...",
+    checkoutMpesaSec: "Seconds remaining",
+    checkoutErrPhone: "Invalid M-Pesa number. Please enter a 9-digit Vodacom number (e.g. 84XXXXXXX).",
+    checkoutErrPay: "Payment failed or was cancelled.",
+    checkoutMpesaSuccess: "Payment verified successfully!",
+    orderReceiptSent: "We've sent the receipt with details and pickup code to your email: {email}.",
+    orderPaidBadge: "Paid via M-Pesa",
+    orderTxId: "M-Pesa Transaction"
   },
   CHA: {
     search: "Lavalava zvibedhlela, maklinika...",
@@ -439,6 +526,169 @@ export default function GuiaSaudeBairro() {
   const [themePref, setThemePref] = useState("system");
   const [notifsEnabled, setNotifsEnabled] = useState(true);
 
+  // Contact Form & OTP Verification State
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [contactStep, setContactStep] = useState("form"); // "form" | "otp" | "success"
+  const [contactForm, setContactForm] = useState({ name: "", email: "", subject: "Dúvida Geral", message: "" });
+  const [contactOtp, setContactOtp] = useState(["", "", "", "", "", ""]);
+  const [contactSubmitting, setContactSubmitting] = useState(false);
+  const [contactError, setContactError] = useState("");
+  const [resendTimer, setResendTimer] = useState(0);
+  const [debugOtpCode, setDebugOtpCode] = useState("");
+
+
+
+  // Timer effect for OTP resend countdown
+  useEffect(() => {
+    let interval;
+    if (resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer(prev => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [resendTimer]);
+
+  const handleSendOtp = async (e) => {
+    if (e) e.preventDefault();
+    if (!contactForm.name.trim() || !contactForm.email.trim() || !contactForm.message.trim()) {
+      setContactError(t.contactErrFill);
+      return;
+    }
+    if (!contactForm.email.includes("@")) {
+      setContactError(t.contactErrFill);
+      return;
+    }
+
+    setContactSubmitting(true);
+    setContactError("");
+    setDebugOtpCode("");
+
+    try {
+      const res = await fetch("/api/contact/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(contactForm),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setContactStep("otp");
+        setResendTimer(60);
+        setContactOtp(["", "", "", "", "", ""]);
+        if (data.debugOtp) {
+          setDebugOtpCode(data.debugOtp);
+        }
+      } else {
+        setContactError(data.error || "Erro ao processar envio do código.");
+      }
+    } catch (err) {
+      console.error(err);
+      setContactError("Erro de ligação. Verifique a sua ligação à internet.");
+    } finally {
+      setContactSubmitting(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    if (e) e.preventDefault();
+    const otpCode = contactOtp.join("");
+    if (otpCode.length !== 6) {
+      setContactError(t.contactErrOtp);
+      return;
+    }
+
+    setContactSubmitting(true);
+    setContactError("");
+
+    try {
+      const res = await fetch("/api/contact/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: contactForm.email,
+          otp: otpCode
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setContactStep("success");
+      } else {
+        setContactError(data.error || t.contactErrOtp);
+      }
+    } catch (err) {
+      console.error(err);
+      setContactError("Erro ao verificar código.");
+    } finally {
+      setContactSubmitting(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (resendTimer > 0 || contactSubmitting) return;
+
+    setContactSubmitting(true);
+    setContactError("");
+    setDebugOtpCode("");
+
+    try {
+      const res = await fetch("/api/contact/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(contactForm),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setResendTimer(60);
+        setContactOtp(["", "", "", "", "", ""]);
+        if (data.debugOtp) {
+          setDebugOtpCode(data.debugOtp);
+        }
+      } else {
+        setContactError(data.error || "Erro ao reenviar código.");
+      }
+    } catch (err) {
+      console.error(err);
+      setContactError("Erro ao reenviar código.");
+    } finally {
+      setContactSubmitting(false);
+    }
+  };
+
+  const handleOtpChange = (value, index) => {
+    const val = value.replace(/[^0-9]/g, "");
+    if (!val) {
+      const newOtp = [...contactOtp];
+      newOtp[index] = "";
+      setContactOtp(newOtp);
+      return;
+    }
+    const newOtp = [...contactOtp];
+    newOtp[index] = val.substring(val.length - 1);
+    setContactOtp(newOtp);
+
+    // Auto focus next input
+    if (index < 5) {
+      setTimeout(() => {
+        document.getElementById(`contact-otp-${index + 1}`)?.focus();
+      }, 10);
+    }
+  };
+
+  const handleOtpKeyDown = (e, index) => {
+    if (e.key === "Backspace") {
+      e.preventDefault();
+      const newOtp = [...contactOtp];
+      if (contactOtp[index]) {
+        newOtp[index] = "";
+        setContactOtp(newOtp);
+      } else if (index > 0) {
+        newOtp[index - 1] = "";
+        setContactOtp(newOtp);
+        document.getElementById(`contact-otp-${index - 1}`)?.focus();
+      }
+    }
+  };
+
   useEffect(() => {
     const root = document.documentElement;
     const mediaQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
@@ -489,6 +739,80 @@ export default function GuiaSaudeBairro() {
   const fileInputRef = useRef(null);
 
   const t = safeI18n(language);
+
+  // M-Pesa Cart, Checkout & Payment State
+  const [checkoutMeds, setCheckoutMeds] = useState([]);
+  const [clientEmail, setClientEmail] = useState("");
+  const [mpesaPhone, setMpesaPhone] = useState("");
+  const [mpesaTransactionId, setMpesaTransactionId] = useState("");
+  const [checkoutError, setCheckoutError] = useState("");
+  const [checkoutSubmitting, setCheckoutSubmitting] = useState(false);
+  const [mpesaCountdown, setMpesaCountdown] = useState(0);
+
+  // M-Pesa USSD Push Timer countdown effect
+  useEffect(() => {
+    let interval;
+    if (mpesaCountdown > 0 && uploadStatus === "mpesa-loading") {
+      interval = setInterval(() => {
+        setMpesaCountdown(prev => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [mpesaCountdown, uploadStatus]);
+
+  const handleMpesaCheckout = async (e) => {
+    if (e) e.preventDefault();
+    if (!clientEmail.trim() || !clientEmail.includes("@")) {
+      setCheckoutError(t.contactErrFill);
+      return;
+    }
+    
+    const cleanPhone = mpesaPhone.trim().replace("+", "").replace(/\s/g, "");
+    const mzPhoneRegex = /^(84|85)\d{7}$/;
+    if (!mzPhoneRegex.test(cleanPhone)) {
+      setCheckoutError(t.checkoutErrPhone);
+      return;
+    }
+
+    setCheckoutError("");
+    setCheckoutSubmitting(true);
+    setMpesaCountdown(15);
+    setUploadStatus("mpesa-loading");
+
+    try {
+      const cleanPriceStr = chatData.price.replace(/\./g, "").replace(/,/g, "");
+      const totalAmount = parseInt(cleanPriceStr) || 1500;
+      
+      const res = await fetch("/api/payment/mpesa", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: clientEmail.trim(),
+          phone: cleanPhone,
+          amount: totalAmount,
+          orderId: "ORD" + Math.random().toString(36).substring(2, 9).toUpperCase(),
+          pharmacyName: chatData.pharmacyName,
+          meds: checkoutMeds,
+          code: chatData.code
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setMpesaTransactionId(data.transactionId);
+        setUploadStatus("ticket");
+      } else {
+        setCheckoutError(data.error || t.checkoutErrPay);
+        setUploadStatus("cart");
+      }
+    } catch (err) {
+      console.error(err);
+      setCheckoutError("Erro de ligação ao processar pagamento.");
+      setUploadStatus("cart");
+    } finally {
+      setCheckoutSubmitting(false);
+    }
+  };
 
   // Initialize Geolocation on mount
   useEffect(() => {
@@ -628,7 +952,27 @@ export default function GuiaSaudeBairro() {
       setTimeout(() => {
         setChatMessages(prev => [...prev, { sender: "pharmacy", text: t.reserveConfirm, time: "Agora" }]);
         setTimeout(() => {
-          setUploadStatus("ticket");
+          // Parse price string to number (remove any thousand separator dots)
+          const cleanPriceStr = chatData.price.replace(/\./g, "").replace(/,/g, "");
+          const totalPrice = parseInt(cleanPriceStr) || 1500;
+          
+          // Generate detailed medicine items that sum up to totalPrice
+          const item1Price = Math.floor(totalPrice * 0.45);
+          const item2PriceEach = Math.floor(totalPrice * 0.15); // x2 = 30%
+          const item3Price = totalPrice - item1Price - (item2PriceEach * 2); // Remainder ensures mathematical match
+          
+          const meds = [
+            { id: "m1", name: "Amoxicilina 500mg (Cápsulas)", qty: 1, price: item1Price },
+            { id: "m2", name: "Paracetamol 500mg (Comprimidos)", qty: 2, price: item2PriceEach * 2, unitPrice: item2PriceEach },
+            { id: "m3", name: "Multivitamínico (Xarope)", qty: 1, price: item3Price }
+          ];
+          
+          setCheckoutMeds(meds);
+          setClientEmail("");
+          setMpesaPhone("");
+          setMpesaTransactionId("");
+          setCheckoutError("");
+          setUploadStatus("cart");
         }, 3000);
       }, 1500);
     } else if (text === t.replyNo) {
@@ -850,14 +1194,14 @@ export default function GuiaSaudeBairro() {
                 <Camera className="h-8 w-8 text-primary-600 dark:text-primary-400" />
              </div>
              <div className="text-center">
-               <p className="text-lg font-bold text-primary-700 dark:text-primary-400">{t.cam}</p>
-               <p className="text-sm font-medium text-gray-400 dark:text-gray-500 mt-1">{t.gal}</p>
+                <p className="text-lg font-bold text-primary-700 dark:text-primary-400">{t.cam}</p>
+                <p className="text-sm font-medium text-gray-400 dark:text-gray-500 mt-1">{t.gal}</p>
              </div>
           </button>
 
           <div className="bg-primary-50/50 dark:bg-slate-800 rounded-3xl p-5 border border-primary-100 dark:border-slate-700/50 flex items-start gap-4 shadow-sm">
              <div className="bg-white dark:bg-slate-700 p-2 rounded-xl shadow-sm mt-1 shrink-0">
-               <FileText className="h-6 w-6 text-primary-500 dark:text-primary-400" />
+                <FileText className="h-6 w-6 text-primary-500 dark:text-primary-400" />
              </div>
              <div>
                 <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">{t.clear}</h4>
@@ -886,14 +1230,165 @@ export default function GuiaSaudeBairro() {
              </div>
            ) : (
              <div className="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center relative">
-                <div className="absolute inset-0 border-4 border-primary-200 rounded-full border-t-primary-600 animate-spin"></div>
-                <Search className="h-8 w-8 text-primary-600 animate-pulse" />
-             </div>
+                 <div className="absolute inset-0 border-4 border-primary-200 rounded-full border-t-primary-600 animate-spin"></div>
+                 <Search className="h-8 w-8 text-primary-600 animate-pulse" />
+              </div>
            )}
            <div className="text-center">
              <h3 className="text-xl font-bold text-gray-900 mb-2">{t.uploading}</h3>
              <p className="text-gray-500 font-medium">{t.searching}</p>
            </div>
+        </motion.div>
+      );
+    }
+
+    if (uploadStatus === "cart") {
+      return (
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
+          className="flex flex-col px-5 py-6 gap-5 pb-32"
+        >
+          <div className="text-center mb-1">
+            <h2 className="text-2xl font-black text-gray-900 dark:text-gray-100">{t.cartTitle}</h2>
+            <p className="text-gray-500 dark:text-gray-400 mt-1.5 text-xs leading-relaxed">{t.cartSub}</p>
+          </div>
+
+          {/* Meds List Card */}
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-5 border border-gray-100 dark:border-slate-700/50 shadow-sm flex flex-col gap-4">
+            <div className="flex justify-between items-center border-b border-gray-100 dark:border-slate-700/50 pb-2">
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{t.cartMedsHeader}</span>
+              <div className="flex gap-8">
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{t.cartQtyHeader}</span>
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{t.cartPriceHeader}</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              {checkoutMeds.map((med) => (
+                <div key={med.id} className="flex justify-between items-center text-sm font-medium">
+                  <span className="text-gray-800 dark:text-gray-200">{med.name}</span>
+                  <div className="flex items-center gap-8">
+                    <span className="text-gray-500 dark:text-gray-400">{med.qty}x</span>
+                    <span className="text-gray-900 dark:text-gray-100 font-bold whitespace-nowrap">{med.price.toLocaleString('pt-MZ')} MZN</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="border-t-2 border-dashed border-gray-100 dark:border-slate-700/50 pt-4 mt-2 flex justify-between items-center">
+              <span className="text-base font-black text-gray-900 dark:text-gray-100">Total</span>
+              <span className="text-lg font-black text-primary-600 dark:text-primary-400">{chatData.price} MZN</span>
+            </div>
+            
+            <div className="bg-primary-50/50 dark:bg-slate-700/30 rounded-2xl p-3 flex justify-between items-center text-xs font-bold text-primary-700 dark:text-primary-400 border border-primary-100/50 dark:border-slate-700/50">
+              <span>Farmácia de Recolha:</span>
+              <span>{chatData.pharmacyName}</span>
+            </div>
+          </div>
+
+          {/* Billing / Payment Form */}
+          <form onSubmit={handleMpesaCheckout} className="flex flex-col gap-4">
+            {checkoutError && (
+              <div className="bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400 text-xs font-semibold p-3.5 rounded-2xl flex items-center gap-2">
+                <AlertTriangle className="h-4.5 w-4.5 shrink-0" />
+                <span>{checkoutError}</span>
+              </div>
+            )}
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-1">{t.checkoutEmail}</label>
+              <div className="relative">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <input
+                  type="email"
+                  required
+                  value={clientEmail}
+                  onChange={(e) => setClientEmail(e.target.value)}
+                  placeholder="exemplo@dominio.com"
+                  className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700/50 rounded-2xl text-[0.95rem] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:ring-2 focus:ring-primary-500 outline-none transition-all shadow-sm"
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-1">{t.checkoutPhone}</label>
+              <div className="relative">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                  <PhoneCall className="h-5 w-5 text-gray-400" />
+                  <span className="text-[0.95rem] font-bold text-gray-400 border-r border-gray-200 dark:border-slate-700/50 pr-2">+258</span>
+                </div>
+                <input
+                  type="tel"
+                  required
+                  pattern="[0-9]*"
+                  inputMode="numeric"
+                  maxLength="9"
+                  value={mpesaPhone}
+                  onChange={(e) => setMpesaPhone(e.target.value)}
+                  placeholder="84XXXXXXX"
+                  className="w-full pl-28 pr-4 py-3.5 bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700/50 rounded-2xl text-[0.95rem] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:ring-2 focus:ring-primary-500 outline-none transition-all shadow-sm font-bold tracking-wide"
+                />
+              </div>
+            </div>
+
+            {/* M-Pesa Checkout Button */}
+            <button
+              type="submit"
+              disabled={checkoutSubmitting}
+              className="w-full flex items-center justify-center gap-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold py-4 rounded-2xl transition shadow-lg shadow-rose-600/20 active:scale-[0.99] cursor-pointer mt-2 select-none"
+            >
+              <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center shrink-0">
+                <span className="text-[10px] font-black text-rose-600">M</span>
+              </div>
+              <span>{t.checkoutBtn}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setUploadStatus("chat")}
+              className="w-full text-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 font-bold py-2 text-sm transition"
+            >
+              {t.checkoutGoBack}
+            </button>
+          </form>
+        </motion.div>
+      );
+    }
+
+    if (uploadStatus === "mpesa-loading") {
+      return (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex flex-col items-center justify-center h-[70vh] px-5 gap-6 text-center"
+        >
+          <div className="relative">
+            {/* Pulsing ring */}
+            <div className="absolute inset-0 bg-rose-100 dark:bg-rose-950/35 rounded-full animate-ping opacity-60" />
+            <div className="absolute -inset-4 bg-rose-50 dark:bg-rose-950/20 rounded-full animate-pulse" />
+            <div className="relative w-24 h-24 bg-rose-600 rounded-full flex items-center justify-center shadow-xl">
+              <span className="text-4xl font-black text-white leading-none">M</span>
+            </div>
+            <div className="absolute -top-1 -right-1 bg-white dark:bg-slate-800 p-1.5 rounded-full shadow-md">
+              <Loader2 className="h-5 w-5 text-rose-600 animate-spin" />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2 max-w-xs">
+            <h3 className="text-xl font-black text-gray-900 dark:text-gray-100">{t.checkoutMpesaTitle}</h3>
+            <p className="text-gray-500 dark:text-gray-400 text-sm font-medium leading-relaxed">
+              {t.checkoutMpesaSub.replace("{phone}", "+258 " + mpesaPhone)}
+            </p>
+          </div>
+
+          <div className="bg-rose-50 dark:bg-rose-950/10 border border-rose-100/50 dark:border-rose-900/20 rounded-2xl px-5 py-3.5 flex items-center gap-3 shadow-sm mt-2">
+            <span className="text-sm font-bold text-rose-700 dark:text-rose-400">{t.checkoutMpesaWaiting}</span>
+            <div className="bg-rose-600 text-white font-extrabold text-xs w-6 h-6 rounded-full flex items-center justify-center">
+              {mpesaCountdown}
+            </div>
+          </div>
         </motion.div>
       );
     }
@@ -905,32 +1400,74 @@ export default function GuiaSaudeBairro() {
           animate={{ opacity: 1, scale: 1 }}
           className="flex flex-col px-5 py-6 gap-6 pb-32 min-h-[75vh] justify-center"
         >
-          <div className="bg-white rounded-3xl p-8 shadow-[0_10px_40px_rgba(0,0,0,0.06)] border border-gray-100 flex flex-col items-center text-center relative overflow-hidden">
-             <div className="absolute top-0 left-0 right-0 h-2 bg-emerald-500"></div>
-             <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mb-5">
-                <CheckCircle2 className="h-10 w-10 text-emerald-600" />
-             </div>
-             <h3 className="text-2xl font-extrabold text-gray-900 mb-2">{t.ticketTitle}</h3>
-             <p className="text-sm text-gray-500 mb-6">{t.ticketSub}</p>
-
-             <div className="w-full border-t-2 border-dashed border-gray-200 my-2"></div>
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-[0_10px_40px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-slate-700/50 flex flex-col items-center text-center relative overflow-hidden">
+             <div className={`absolute top-0 left-0 right-0 h-2 ${mpesaTransactionId ? 'bg-rose-600' : 'bg-emerald-500'}`}></div>
              
-             <div className="flex flex-col items-center my-6">
-                <span className="text-[10px] font-bold text-gray-400 tracking-widest mb-2">{t.codeLbl}</span>
-                <span className="text-4xl font-black text-primary-600 tracking-widest">{chatData.code}</span>
+             {mpesaTransactionId && (
+               <div className="absolute top-4 right-4 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 text-[10px] font-black uppercase px-2.5 py-1 rounded-full border border-rose-100 dark:border-rose-900/30 flex items-center gap-1">
+                 <span className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse"></span>
+                 {t.orderPaidBadge}
+               </div>
+             )}
+
+             <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 mt-2 ${mpesaTransactionId ? 'bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400' : 'bg-emerald-100 dark:bg-emerald-950/20 text-emerald-600'}`}>
+                {mpesaTransactionId ? (
+                  <span className="text-2xl font-black leading-none select-none">M</span>
+                ) : (
+                  <CheckCircle2 className="h-8 w-8" />
+                )}
              </div>
 
-             <div className="w-full border-t-2 border-dashed border-gray-200 my-2"></div>
+             <h3 className="text-xl font-extrabold text-gray-900 dark:text-gray-100 mb-1">
+               {mpesaTransactionId ? t.checkoutMpesaSuccess : t.ticketTitle}
+             </h3>
+             <p className="text-xs text-gray-500 dark:text-gray-400 mb-5 leading-relaxed px-4">
+               {mpesaTransactionId 
+                 ? t.orderReceiptSent.replace("{email}", clientEmail)
+                 : t.ticketSub}
+             </p>
 
-             <div className="w-full bg-gray-50 rounded-2xl p-4 flex justify-between items-center text-sm font-bold mt-4">
-                <span className="text-gray-600">{chatData.pharmacyName}</span>
-                <span className="text-primary-700">{chatData.price} MZN</span>
+             <div className="w-full border-t-2 border-dashed border-gray-100 dark:border-slate-700/50 my-1"></div>
+             
+             <div className="flex flex-col items-center my-4">
+                <span className="text-[9px] font-bold text-gray-400 dark:text-gray-500 tracking-widest mb-1.5 uppercase">{t.codeLbl}</span>
+                <span className="text-3xl font-black text-primary-600 dark:text-primary-400 tracking-widest">{chatData.code}</span>
+             </div>
+
+             {/* If paid via M-Pesa, show detailed receipt items */}
+             {mpesaTransactionId ? (
+               <>
+                 <div className="w-full border-t-2 border-dashed border-gray-100 dark:border-slate-700/50 my-1"></div>
+                 <div className="w-full flex flex-col gap-2 my-3 text-left">
+                   <span className="text-[9px] font-bold text-gray-400 dark:text-gray-500 tracking-widest uppercase mb-1">Itens Comprados</span>
+                   {checkoutMeds.map((med) => (
+                     <div key={med.id} className="flex justify-between items-center text-xs font-semibold">
+                       <span className="text-gray-600 dark:text-gray-300">{med.name}</span>
+                       <div className="flex gap-4">
+                         <span className="text-gray-400">{med.qty}x</span>
+                         <span className="text-gray-800 dark:text-gray-200">{med.price.toLocaleString('pt-MZ')} MZN</span>
+                       </div>
+                     </div>
+                   ))}
+                   <div className="flex justify-between items-center text-xs font-bold text-primary-600 dark:text-primary-400 border-t border-gray-50 dark:border-slate-700/50 pt-2 mt-1">
+                     <span>{t.orderTxId} (Ref)</span>
+                     <span className="font-mono">{mpesaTransactionId}</span>
+                   </div>
+                 </div>
+               </>
+             ) : null}
+
+             <div className="w-full border-t-2 border-dashed border-gray-100 dark:border-slate-700/50 my-1"></div>
+
+             <div className="w-full bg-gray-50 dark:bg-slate-700/20 rounded-2xl p-4 flex justify-between items-center text-sm font-bold mt-3 border border-gray-100/50 dark:border-slate-700/30">
+                <span className="text-gray-600 dark:text-gray-300">{chatData.pharmacyName}</span>
+                <span className="text-primary-700 dark:text-primary-400">{chatData.price} MZN</span>
              </div>
           </div>
 
           <button 
-             onClick={() => { setUploadStatus("idle"); setChatMessages([]); setPreviewImage(null); }}
-             className="w-full flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 rounded-2xl transition shadow-lg shadow-primary-600/30"
+             onClick={() => { setUploadStatus("idle"); setChatMessages([]); setPreviewImage(null); setMpesaTransactionId(""); }}
+             className="w-full flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 rounded-2xl transition shadow-lg shadow-primary-600/30 active:scale-[0.99] select-none"
           >
              <UploadCloud className="h-5 w-5" />
              {t.newRec}
@@ -1170,10 +1707,37 @@ export default function GuiaSaudeBairro() {
                       </div>
                    </button>
 
+                   {/* Contact Support */}
+                   <button 
+                     onClick={() => {
+                       setShowSettingsModal(false);
+                       setContactForm({ name: "", email: "", subject: "Dúvida Geral", message: "" });
+                       setContactError("");
+                       setContactStep("form");
+                       setDebugOtpCode("");
+                       setShowContactModal(true);
+                     }}
+                     className="flex items-center justify-between bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700/50 p-4 rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] active:scale-[0.98] transition-transform w-full"
+                   >
+                      <div className="flex items-center gap-3">
+                         <div className="p-2 rounded-full bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400">
+                            <MessageSquare className="h-5 w-5" />
+                         </div>
+                         <span className="font-bold text-[var(--foreground)]">{t.contactTitle}</span>
+                      </div>
+                   </button>
+
                    {/* Report Error */}
                    <button 
-                     onClick={() => window.location.href = "mailto:suporte@guia-saude.co.mz?subject=Reportar%20Problema%20Técnico%20no%20Guia%20de%20Saúde"}
-                     className="flex items-center justify-between bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 p-4 rounded-2xl shadow-sm active:scale-[0.98] transition-transform group mt-2 w-full"
+                     onClick={() => {
+                       setShowSettingsModal(false);
+                       setContactForm({ name: "", email: "", subject: "Reportar Problema Técnico", message: "" });
+                       setContactError("");
+                       setContactStep("form");
+                       setDebugOtpCode("");
+                       setShowContactModal(true);
+                     }}
+                     className="flex items-center justify-between bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 p-4 rounded-2xl shadow-sm active:scale-[0.98] transition-transform group mt-2 w-full animate-pulse-slow"
                    >
                       <div className="flex items-center gap-3">
                          <div className="p-2 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 group-hover:bg-red-200 transition-colors">
@@ -1185,6 +1749,267 @@ export default function GuiaSaudeBairro() {
 
                 </div>
              </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Contact Form Modal Overlay */}
+      <AnimatePresence>
+        {showContactModal && (
+          <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => {
+                if (!contactSubmitting) setShowContactModal(false);
+              }}
+              className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="w-full max-w-md bg-white dark:bg-slate-900 rounded-t-[2.5rem] shadow-2xl relative z-10 p-6 flex flex-col sm:rounded-[2.5rem] sm:mb-10 sm:max-w-sm max-h-[85vh] overflow-y-auto no-scrollbar"
+            >
+              <div className="w-12 h-1.5 bg-gray-200 dark:bg-slate-700 rounded-full mx-auto mb-6 shrink-0" />
+
+              {/* Step 1: Contact Form Input */}
+              {contactStep === "form" && (
+                <div className="flex flex-col gap-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <div>
+                      <h3 className="text-2xl font-extrabold text-gray-900 dark:text-gray-100">{t.contactTitle}</h3>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{t.contactSub}</p>
+                    </div>
+                    <button
+                      onClick={() => setShowContactModal(false)}
+                      className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition shrink-0"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+
+                  {contactError && (
+                    <div className="bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400 text-sm font-semibold p-3.5 rounded-2xl flex items-center gap-2 animate-shake">
+                      <AlertTriangle className="h-5 w-5 shrink-0" />
+                      <span>{contactError}</span>
+                    </div>
+                  )}
+
+                  <form onSubmit={handleSendOtp} className="flex flex-col gap-4">
+                    {/* Name */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-1">{t.contactName}</label>
+                      <div className="relative">
+                        <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <input
+                          type="text"
+                          required
+                          value={contactForm.name}
+                          onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
+                          className="w-full pl-12 pr-4 py-3.5 bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700/50 rounded-2xl text-[0.95rem] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-primary-500 outline-none transition-all"
+                          placeholder={language === "EN" ? "John Doe" : "Ex: João Silva"}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Email */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-1">{t.contactEmail}</label>
+                      <div className="relative">
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <input
+                          type="email"
+                          required
+                          value={contactForm.email}
+                          onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
+                          className="w-full pl-12 pr-4 py-3.5 bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700/50 rounded-2xl text-[0.95rem] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-primary-500 outline-none transition-all"
+                          placeholder="exemplo@dominio.com"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Subject */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-1">{t.contactSubject}</label>
+                      <div className="relative">
+                        <Tag className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <select
+                          value={contactForm.subject}
+                          onChange={(e) => setContactForm({ ...contactForm, subject: e.target.value })}
+                          className="w-full pl-12 pr-10 py-3.5 bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700/50 rounded-2xl text-[0.95rem] text-gray-900 dark:text-gray-100 focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-primary-500 outline-none transition-all appearance-none"
+                        >
+                          <option value="Dúvida Geral">{t.contactSubjectQuestion}</option>
+                          <option value="Reportar Problema Técnico">{t.contactSubjectBug}</option>
+                          <option value="Sugestão ou Feedback">{t.contactSubjectFeedback}</option>
+                        </select>
+                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                      </div>
+                    </div>
+
+                    {/* Message */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-1">{t.contactMessage}</label>
+                      <textarea
+                        required
+                        rows="4"
+                        value={contactForm.message}
+                        onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
+                        className="w-full px-4 py-3.5 bg-gray-50 dark:bg-slate-800 border border-transparent dark:border-slate-700/50 rounded-2xl text-[0.95rem] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-primary-500 outline-none transition-all resize-none"
+                        placeholder={language === "EN" ? "How can we help you?" : "Escreva a sua mensagem..."}
+                      />
+                    </div>
+
+                    {/* Submit Button */}
+                    <button
+                      type="submit"
+                      disabled={contactSubmitting}
+                      className="w-full flex items-center justify-center gap-2.5 bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 rounded-2xl transition shadow-lg shadow-primary-600/25 disabled:opacity-50 mt-2 select-none active:scale-[0.99] cursor-pointer"
+                    >
+                      {contactSubmitting ? (
+                        <>
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                          <span>{t.contactSubmitting}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Send className="h-5 w-5" />
+                          <span>{t.contactSendCode}</span>
+                        </>
+                      )}
+                    </button>
+                  </form>
+                </div>
+              )}
+
+              {/* Step 2: OTP Verification */}
+              {contactStep === "otp" && (
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <button
+                      onClick={() => {
+                        setContactStep("form");
+                        setContactError("");
+                      }}
+                      className="p-2 bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full text-gray-500 transition shrink-0"
+                    >
+                      <ArrowLeft className="h-5 w-5" />
+                    </button>
+                    <h3 className="text-xl font-extrabold text-gray-900 dark:text-gray-100">{t.contactVerifyTitle}</h3>
+                    <button
+                      onClick={() => setShowContactModal(false)}
+                      className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition shrink-0"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+
+                  <p className="text-sm text-gray-500 dark:text-gray-400 text-center leading-relaxed px-2">
+                    {t.contactVerifySub.replace("{email}", contactForm.email)}
+                  </p>
+
+                  {/* Debug OTP Banner (Development Mode Simulation Assist) */}
+                  {debugOtpCode && (
+                    <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 text-amber-800 dark:text-amber-300 text-xs font-medium p-3 rounded-2xl flex flex-col items-center gap-1.5 shadow-sm">
+                      <span className="flex items-center gap-1 font-bold uppercase tracking-wider text-[10px] text-amber-600 dark:text-amber-400">
+                        <AlertTriangle className="h-4 w-4" /> Modo de Desenvolvimento
+                      </span>
+                      <span>
+                        Para testar sem configurar o e-mail, utilize o código OTP: <strong className="text-sm font-extrabold tracking-widest text-primary-600 dark:text-primary-400 bg-amber-100 dark:bg-amber-900/50 px-2 py-0.5 rounded-md ml-1">{debugOtpCode}</strong>
+                      </span>
+                    </div>
+                  )}
+
+                  {contactError && (
+                    <div className="bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400 text-sm font-semibold p-3.5 rounded-2xl flex items-center gap-2 animate-shake">
+                      <AlertTriangle className="h-5 w-5 shrink-0" />
+                      <span>{contactError}</span>
+                    </div>
+                  )}
+
+                  <form onSubmit={handleVerifyOtp} className="flex flex-col gap-6 mt-2">
+                    {/* OTP Inputs */}
+                    <div className="flex justify-between gap-2 px-1">
+                      {contactOtp.map((digit, idx) => (
+                        <input
+                          key={idx}
+                          id={`contact-otp-${idx}`}
+                          type="text"
+                          pattern="[0-9]*"
+                          inputMode="numeric"
+                          maxLength="1"
+                          required
+                          value={digit}
+                          onChange={(e) => handleOtpChange(e.target.value, idx)}
+                          onKeyDown={(e) => handleOtpKeyDown(e, idx)}
+                          className="w-12 h-14 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700/50 rounded-2xl text-center text-2xl font-black text-primary-600 dark:text-primary-400 focus:bg-white dark:focus:bg-slate-900 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 outline-none transition-all shadow-sm"
+                        />
+                      ))}
+                    </div>
+
+                    {/* Resend Options */}
+                    <div className="flex justify-center items-center text-sm">
+                      {resendTimer > 0 ? (
+                        <span className="text-gray-400 font-medium">
+                          {t.contactResendIn.replace("{time}", resendTimer)}
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          disabled={contactSubmitting}
+                          onClick={handleResendOtp}
+                          className="text-primary-600 dark:text-primary-400 font-bold hover:underline cursor-pointer disabled:opacity-50"
+                        >
+                          {t.contactResendBtn}
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Verify Button */}
+                    <button
+                      type="submit"
+                      disabled={contactSubmitting || contactOtp.some(d => d === "")}
+                      className="w-full flex items-center justify-center gap-2.5 bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 rounded-2xl transition shadow-lg shadow-primary-600/25 disabled:opacity-50 select-none active:scale-[0.99] cursor-pointer"
+                    >
+                      {contactSubmitting ? (
+                        <>
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                          <span>{t.contactVerifying}</span>
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="h-5 w-5" />
+                          <span>{t.contactVerifyBtn}</span>
+                        </>
+                      )}
+                    </button>
+                  </form>
+                </div>
+              )}
+
+              {/* Step 3: Success View */}
+              {contactStep === "success" && (
+                <div className="flex flex-col items-center text-center p-4">
+                  <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-950/30 rounded-full flex items-center justify-center mb-6 shadow-sm">
+                    <CheckCircle2 className="h-10 w-10 text-emerald-600 dark:text-emerald-400" />
+                  </div>
+
+                  <h3 className="text-2xl font-black text-gray-900 dark:text-gray-100 mb-2">{t.contactSuccessTitle}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-8 px-2">
+                    {t.contactSuccessSub}
+                  </p>
+
+                  <button
+                    onClick={() => setShowContactModal(false)}
+                    className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 rounded-2xl transition shadow-lg shadow-primary-600/25 active:scale-[0.99] cursor-pointer"
+                  >
+                    {t.contactClose}
+                  </button>
+                </div>
+              )}
+            </motion.div>
           </div>
         )}
       </AnimatePresence>

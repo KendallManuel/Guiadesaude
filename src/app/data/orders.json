@@ -1,0 +1,35 @@
+[
+  {
+    "orderId": "ORDF239I9Z",
+    "pharmacyName": "Farmácia Avenida",
+    "meds": [
+      {
+        "id": "m1",
+        "name": "Amoxicilina 500mg (Cápsulas)",
+        "qty": 1,
+        "price": 1534
+      },
+      {
+        "id": "m2",
+        "name": "Paracetamol 500mg (Comprimidos)",
+        "qty": 2,
+        "price": 1022,
+        "unitPrice": 511
+      },
+      {
+        "id": "m3",
+        "name": "Multivitamínico (Xarope)",
+        "qty": 1,
+        "price": 853
+      }
+    ],
+    "totalAmount": 3409,
+    "clientEmail": "kendallmanuel91@gmail.com",
+    "clientPhone": "846233877",
+    "mpesaTransactionId": "MP8QPQYT4H",
+    "code": "#GUWJ",
+    "status": "PAID",
+    "createdAt": "2026-06-15T16:29:50.994Z",
+    "simulated": true
+  }
+]
